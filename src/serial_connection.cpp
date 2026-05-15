@@ -12,14 +12,16 @@ void initSerial(unsigned long baudRate) {
 }
 
 void printMeasuredData(int adcPin, int raw, float voltage, float angle) {
-    Serial.print("ADC pin ");
-    Serial.print(adcPin);
-    Serial.print(" raw = ");
-    Serial.print(raw);
-    Serial.print("  voltage = ");
-    Serial.print(voltage, 3);
-    Serial.print(" V");
-    Serial.print("  angle = ");
-    Serial.print(angle, 1);
-    Serial.println(" deg");
+    char buf[128];
+    int len = snprintf(
+        buf,
+        sizeof(buf),
+        "ADC pin %d raw = %d  voltage = %.3f V  angle = %.1f deg\n",
+        adcPin,
+        raw,
+        voltage,
+        angle);
+    if (len > 0) {
+        Serial.write(reinterpret_cast<const uint8_t *>(buf), len);
+    }
 }

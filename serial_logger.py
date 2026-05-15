@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 from pathlib import Path
 
+
 try:
     import serial
 except ImportError:
@@ -21,7 +22,7 @@ def parse_args():
     parser.add_argument(
         "--baudrate",
         type=int,
-        default=115200,
+        default=230400,
         help="Serial baud rate (default: 115200).",
     )
     parser.add_argument(
@@ -34,6 +35,12 @@ def parse_args():
         type=float,
         default=1.0,
         help="Read timeout in seconds (default: 1.0).",
+    )
+    parser.add_argument(
+        "--flush-every",
+        type=int,
+        default=50,
+        help="Flush CSV file every N lines (default: 50).",
     )
     return parser.parse_args()
 
@@ -57,6 +64,7 @@ def main():
             csv_file.flush()
 
         try:
+            line_count = 0
             while True:
                 raw_bytes = ser.readline()
                 if not raw_bytes:
@@ -65,7 +73,9 @@ def main():
                 line = raw_bytes.decode("utf-8", errors="replace").strip()
                 timestamp = datetime.now().isoformat(sep=" ", timespec="milliseconds")
                 writer.writerow([timestamp, line])
-                csv_file.flush()
+                line_count += 1
+                if args.flush_every > 0 and line_count % args.flush_every == 0:
+                    csv_file.flush()
                 print(f"[{timestamp}] {line}")
         except KeyboardInterrupt:
             print("\nSerial logger stopped by user.")
