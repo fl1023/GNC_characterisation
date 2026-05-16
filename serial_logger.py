@@ -56,12 +56,10 @@ def main():
 
     print(f"Listening on {args.port} at {args.baudrate} baud. Logging to {output_path}")
 
-    write_header = not output_path.exists()
-    with output_path.open("a", newline="", encoding="utf-8") as csv_file:
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file)
-        if write_header:
-            writer.writerow(["timestamp", "serial_line"])
-            csv_file.flush()
+        writer.writerow(["timestamp", "serial_line"])
+        csv_file.flush()
 
         try:
             line_count = 0
